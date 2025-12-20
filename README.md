@@ -2,7 +2,7 @@
 
 **Commentto** is an AI-powered tool that summarizes long-form content and generates thoughtful comments in the user’s writing voice.
 
-It is designed to be **fast, local-first, and frictionless**, and is available as both a **web app** and a **Chrome extension** for real-world, in-context usage.
+It is designed to be **fast, local-first, and frictionless**, and available as both a **web app** and a **production-ready Chrome extension** build for real-world, in-context usage.
 
 ---
 
@@ -63,6 +63,8 @@ commentto/
 * Communicates with background worker
 * Persists state using `chrome.storage.local`
 
+> Note: The extension is currently distributed via manual loading (developer mode) and not yet published to the Chrome Web Store.
+
 ---
 
 ## AI & Voice Modeling
@@ -117,7 +119,8 @@ via `chrome://extensions` → “Load unpacked”.
 
 ## Deployment
 
-* The web app and API routes are deployed on (Vercel)[]
+* The web app and API routes are deployed on [Vercel](https://commentto-web.vercel.app/).
+* The Chrome extension is built against the live API and loaded locally
 * Only `apps/web` is deployed (monorepo-safe)
 * The Chrome extension consumes the live API endpoints
 
@@ -125,7 +128,7 @@ via `chrome://extensions` → “Load unpacked”.
 
 ## Future Improvements
 
-* Optional analytics (privacy-first)
+* Chrome Web Store publication (if product direction warrants it) 
 * Rate limiting
 * Edge / Firefox extension support
 * Public API access
