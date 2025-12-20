@@ -123,7 +123,7 @@ via `chrome://extensions` → “Load unpacked”.
 
 ---
 
-## 🔮 Future Improvements
+## Future Improvements
 
 * Optional analytics (privacy-first)
 * Rate limiting
@@ -133,7 +133,7 @@ via `chrome://extensions` → “Load unpacked”.
 
 ---
 
-## 🧭 Why This Project Matters
+## Why This Project Matters
 
 Commentto is not a tutorial clone.
 
