@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+
+    "baseUrl": ".",
+    "paths": {
+      "@commentto/types": ["packages/types/src"],
+      "@commentto/voices": ["packages/voices/src"],
+      "@commentto/utils": ["packages/utils/src"],
+      "@commentto/ui": ["packages/ui/src"]
+    },
+
+    "strict": true,
+    "skipLibCheck": true
+  }
+}

@@ -1,0 +1,16 @@
+@import "tailwindcss";
+/* Popup-specific tweaks */
+body {
+  margin: 0;
+}
+
+#root {
+  padding: 12px;
+  width: 360px;
+}
+
+.popup-root {
+  overflow-y: auto;
+  background: #0f172a; /* slate-900 */
+  color: #e5e7eb; /* slate-200 */
+}

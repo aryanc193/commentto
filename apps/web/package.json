@@ -1,0 +1,35 @@
+{
+  "name": "@commentto/web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@commentto/types": "workspace:*",
+    "@commentto/ui": "workspace:*",
+    "@commentto/utils": "workspace:*",
+    "@commentto/voices": "workspace:*",
+    "lucide-react": "^0.562.0",
+    "next": "16.0.9",
+    "openai": "^6.10.0",
+    "react": "19.2.1",
+    "react-dom": "19.2.1",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.0.9",
+    "supertest": "^7.1.4",
+    "tailwindcss": "^4",
+    "typescript": "^5",
+    "vitest": "^4.0.15"
+  }
+}
