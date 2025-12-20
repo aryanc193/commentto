@@ -65,11 +65,14 @@ export default function PopupApp() {
   async function handleCreateVoice() {
     if (!voiceDescription.trim()) return;
 
-    const res = await fetch("http://localhost:3000/api/voice-profile", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ description: voiceDescription }),
-    });
+    const res = await fetch(
+      "https://commentto-web.vercel.app/api/voice-profile",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ description: voiceDescription }),
+      }
+    );
 
     const data = await res.json();
 

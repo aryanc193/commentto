@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3000/api/comment";
+const API_URL = "https://commentto-web.vercel.app/api/comment";
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === "GENERATE_COMMENT") {
