@@ -6,7 +6,6 @@ if (!apiKey) {
   console.warn("GROQ_API_KEY is not set");
 }
 
-// Groq uses an OpenAI-compatible API
 const client = apiKey
   ? new OpenAI({
       apiKey,
@@ -14,7 +13,6 @@ const client = apiKey
     })
   : null;
 
-// Centralized model config (easy future swap)
 const MODEL = "llama-3.1-8b-instant";
 
 /**
@@ -59,67 +57,59 @@ ${content}
 }
 
 /**
- * Derive a reusable voice profile from either:
- * - a natural language description
- * - writing samples
+ * Derive a reusable voice profile + display name from a description.
  */
 export async function deriveVoiceProfile(params: {
-  description?: string;
-  samples?: string[];
-}): Promise<string> {
+  description: string;
+}): Promise<{ profile: string; name: string }> {
   if (!client) {
     throw new Error("LLM client not configured");
   }
 
-  let prompt = "";
-
-  if (params.samples) {
-    const combined = params.samples.join("\n\n---\n\n").slice(0, 12000);
-
-    prompt = `
-Analyze the following writing samples and infer a concise VOICE PROFILE.
-
-Describe in 1–2 sentences:
-- Tone
-- Sentence length and structure
-- Typical patterns (questions, reactions, directness)
-
-Rules:
-- Do NOT quote the samples
-- Do NOT mention the samples explicitly
-- Plain text only
-
-Samples:
-${combined}
-`;
-  } else if (params.description) {
-    prompt = `
+  const prompt = `
 A user describes their desired writing voice as:
 
 "${params.description}"
 
-Convert this into a concise, concrete VOICE PROFILE (1–2 sentences)
-that an AI can strictly follow when writing comments.
+Your task:
+Convert this into a BEHAVIORAL VOICE PROFILE that captures how this writer thinks and sounds.
 
-Rules:
-- Be specific
-- Avoid vague adjectives
+The profile should describe:
+- The writer's mental stance before responding
+- How they phrase reactions or opinions
+- Their typical sentence rhythm and word choice
+- Their emotional relationship to the reader
+
+Guidelines:
+- Interpret vague traits as observable writing behavior
+- Do NOT repeat the user's words
+- If the voice implies a character, persona, dialect, or internet archetype,
+  explicitly allow stylized language, slang, accent, or broken grammar
+- If the voice implies a thoughtful or realistic mode, describe grounded human behavior
+- 1–2 sentences total
+- Natural language, not rules
 - Plain text only
+
+Additionally, create a SHORT NAME for this voice (3–5 words).
+
+Format your response EXACTLY as:
+NAME: [name here]
+PROFILE: [profile here]
+
+Write now.
 `;
-  } else {
-    throw new Error("No description or samples provided");
-  }
 
   const response = await client.chat.completions.create({
     model: MODEL,
     messages: [
       {
         role: "system",
-        content: "You generate concise, enforceable writing voice profiles.",
+        content:
+          "You translate voice descriptions into natural writing behavior.",
       },
       { role: "user", content: prompt },
     ],
-    temperature: 0.2,
+    temperature: 0.4,
   });
 
   const text = response.choices[0]?.message?.content;
@@ -128,11 +118,17 @@ Rules:
     throw new Error("Failed to derive voice profile");
   }
 
-  return text.trim();
+  const nameMatch = text.match(/NAME:\s*(.+)/i);
+  const profileMatch = text.match(/PROFILE:\s*([\s\S]+)/i);
+
+  const name = nameMatch?.[1]?.trim() || params.description.slice(0, 30);
+  const profile = profileMatch?.[1]?.trim() || text.trim();
+
+  return { name, profile };
 }
 
 /**
- * Generate a comment that STRICTLY follows a given voice profile.
+ * Generate a comment that embodies a given voice profile.
  */
 export async function generateComment(params: {
   summary: string;
@@ -145,30 +141,46 @@ export async function generateComment(params: {
   const { summary, voiceProfile } = params;
 
   const prompt = `
-You are writing a short comment on a post.
+You are writing a human comment on a post.
 
-POST SUMMARY:
+POST CONTEXT:
 ${summary}
 
-VOICE PROFILE (STRICTLY FOLLOW):
-${voiceProfile ?? "Neutral, clear, concise, professional tone"}
+WRITING VOICE:
+${voiceProfile ?? "Neutral, clear, thoughtful"}
 
-STYLE RULES:
-- Actively express the voice profile in wording, tone, and sentence structure
-- Avoid generic or corporate phrasing unless explicitly required
-- Do NOT restate the summary
-- Do NOT hedge or average the tone
+How to write:
+- Fully embody the voice—let it shape wording, rhythm, confidence, and restraint
+- React like a real person encountering this post, not like someone summarizing or teaching
+- Do NOT restate the post
+- Do NOT explain the voice or announce intent
 
-COMMENT REQUIREMENTS:
-- 2–4 sentences
-- One clear reaction, insight, or reflection
-- Optional question ONLY if it fits the voice
-- Max 60 words
+Voice behavior rules:
+- If the voice is performative (character, dialect, persona):
+  - Prioritize character, tone, and entertainment over insight or completeness
+  - Lean into exaggeration, slang, metaphor, or stylized grammar
+  - It is acceptable to focus on one detail, ignore others, or be unserious
+  - Avoid sounding like a lesson, takeaway, or retrospective analysis
+- If the voice is interpretive (thoughtful, skeptical, honest, minimalist):
+  - Prioritize natural human insight and stance
+  - Say only what this voice would realistically say
+  - Avoid over-explaining once the point is made
+  - Avoid hedging phrases like “I think” or “it seems” unless the voice values uncertainty
+
+Length:
+- As short as possible, as long as necessary
+- Stop once the reaction feels complete for this voice
+- Some voices should end early rather than fully develop the idea
+- 1–4 sentences depending on voice and context
+
+Optional:
+- Ask a question ONLY if it feels natural for this voice (not required)
+
+Constraints:
 - Plain text only
 - No emojis
 - No hashtags
 
-TASK:
 Write the comment now.
 `;
 
@@ -177,11 +189,11 @@ Write the comment now.
     messages: [
       {
         role: "system",
-        content: "You write concise, voice-accurate comments.",
+        content: "You write natural, voice-shaped comments.",
       },
       { role: "user", content: prompt },
     ],
-    temperature: 0.45,
+    temperature: 0.6,
   });
 
   const text = response.choices[0]?.message?.content;

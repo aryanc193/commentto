@@ -9,15 +9,15 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const data = VoiceProfileRequestSchema.parse(body);
 
+    if (!data.description) {
+      throw new Error("Description is required for voice profile generation");
+    }
+
     const voiceProfile = await deriveVoiceProfile({
       description: data.description,
-      samples: data.samples
     });
 
-    return NextResponse.json(
-      { voiceProfile },
-      { status: 200 }
-    );
+    return NextResponse.json({ voiceProfile }, { status: 200 });
   } catch (err: any) {
     return NextResponse.json(
       { error: err.message || "Failed to generate voice profile" },

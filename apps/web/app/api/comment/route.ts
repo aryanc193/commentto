@@ -16,9 +16,16 @@ export async function POST(req: NextRequest) {
 
     let voiceProfile: string | undefined;
 
+    const resolvedVoiceProfile =
+      typeof userStyle === "string"
+        ? userStyle
+        : userStyle && "profile" in userStyle
+        ? userStyle.profile
+        : undefined;
+
     const comment = await generateComment({
       summary,
-      voiceProfile: body.userStyle,
+      ...(resolvedVoiceProfile ? { voiceProfile: resolvedVoiceProfile } : {}),
     });
 
     return NextResponse.json(
