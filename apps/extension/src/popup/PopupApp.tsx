@@ -76,10 +76,18 @@ export default function PopupApp() {
 
     const data = await res.json();
 
+    // const newVoice: Voice = {
+    //   id: crypto.randomUUID(),
+    //   name: voiceDescription.split(",")[0].slice(0, 24),
+    //   profile: data.voiceProfile,
+    // };
+
+    const { name, profile } = data.voiceProfile;
+
     const newVoice: Voice = {
       id: crypto.randomUUID(),
-      name: voiceDescription.split(",")[0].slice(0, 24),
-      profile: data.voiceProfile,
+      name,
+      profile,
     };
 
     setVoices((v) => [...v, newVoice]);
@@ -109,7 +117,7 @@ export default function PopupApp() {
           onChange={(e) => setSelectedVoiceId(e.target.value)}
         >
           {voices.map((v) => (
-            <option key={v.id} value={v.id}>
+            <option key={v.id} value={v.id} title={v.profile}>
               {v.name}
             </option>
           ))}
@@ -131,6 +139,11 @@ export default function PopupApp() {
         >
           + New
         </button>
+        {selectedVoice && (
+          <p className="mt-1 text-xs text-[var(--subtle)]">
+            {selectedVoice.profile}
+          </p>
+        )}
       </div>
 
       {/* Generate */}

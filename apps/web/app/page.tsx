@@ -58,10 +58,12 @@ export default function Home() {
 
     const data = await res.json();
 
+    const { name, profile } = data.voiceProfile;
+
     const newVoice: Voice = {
       id: crypto.randomUUID(),
-      name: description.split(",")[0].slice(0, 24),
-      profile: data.voiceProfile,
+      name,
+      profile,
     };
 
     setVoices((v) => [...v, newVoice]);
@@ -95,7 +97,7 @@ export default function Home() {
             className="flex-1"
           >
             {voices.map((v) => (
-              <option key={v.id} value={v.id}>
+              <option key={v.id} value={v.id} title={v.profile}>
                 {v.name}
               </option>
             ))}
