@@ -9,6 +9,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { content, samples, userStyle } = parseRequestBody(body);
+    const regenerate = Boolean(body.regenerate);
 
     const truncatedContent = safeTruncate(content);
 
@@ -26,6 +27,7 @@ export async function POST(req: NextRequest) {
     const comment = await generateComment({
       summary,
       ...(resolvedVoiceProfile ? { voiceProfile: resolvedVoiceProfile } : {}),
+      regenerate,
     });
 
     return NextResponse.json(

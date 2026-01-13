@@ -17,6 +17,8 @@ export default function Home() {
   const [showVoiceModal, setShowVoiceModal] = useState(false);
   const [voiceDescription, setVoiceDescription] = useState("");
 
+  const [canRegenerate, setCanRegenerate] = useState(false);
+
   useEffect(() => {
     setVoices(PRESET_VOICES);
     setSelectedVoiceId(PRESET_VOICES[0].id);
@@ -24,12 +26,14 @@ export default function Home() {
 
   const selectedVoice = voices.find((v) => v.id === selectedVoiceId);
 
-  async function handleGenerate() {
+  async function handleGenerate(regenerate = false) {
     if (!content.trim()) return;
 
     setLoading(true);
     setSummary("");
     setComment("");
+
+    setCanRegenerate(false);
 
     try {
       const res = await fetch("/api/comment", {
@@ -38,12 +42,15 @@ export default function Home() {
         body: JSON.stringify({
           content,
           userStyle: selectedVoice?.profile,
+          regenerate,
         }),
       });
 
       const data = await res.json();
       setSummary(data.summary);
       setComment(data.comment);
+
+      setCanRegenerate(true);
     } finally {
       setLoading(false);
     }
@@ -128,7 +135,7 @@ export default function Home() {
 
         {/* Generate */}
         <button
-          onClick={handleGenerate}
+          onClick={() => handleGenerate()}
           disabled={loading}
           className={`mb-8 w-full bg-[var(--accent)] text-black transition-opacity ${
             loading ? "opacity-70" : ""
@@ -181,6 +188,14 @@ export default function Home() {
               <p className="mt-2 mb-2 whitespace-pre-wrap">{comment}</p>
 
               <CopyButton text={comment} />
+              {canRegenerate && (
+                <button
+                  onClick={() => handleGenerate(true)}
+                  className="text-sm underline text-[var(--subtle)]"
+                >
+                  Try another
+                </button>
+              )}
             </section>
           </>
         )}

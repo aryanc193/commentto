@@ -133,6 +133,7 @@ Write now.
 export async function generateComment(params: {
   summary: string;
   voiceProfile?: string;
+  regenerate?: boolean;
 }): Promise<string> {
   if (!client) {
     throw new Error("LLM client not configured");
@@ -180,6 +181,16 @@ Constraints:
 - Plain text only
 - No emojis
 - No hashtags
+
+${
+  params.regenerate
+    ? `
+Write a different take on the same idea.
+Keep the same voice and intent, but vary phrasing, rhythm, or angle.
+Do not contradict the original meaning.
+`
+    : ""
+}
 
 Write the comment now.
 `;

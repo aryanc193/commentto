@@ -17,6 +17,8 @@ export default function PopupApp() {
   const [showVoiceModal, setShowVoiceModal] = useState(false);
   const [voiceDescription, setVoiceDescription] = useState("");
 
+  const [canRegenerate, setCanRegenerate] = useState(false);
+
   /* ---------- init voices ---------- */
   useEffect(() => {
     loadCustomVoices().then((custom) => {
@@ -35,17 +37,20 @@ export default function PopupApp() {
   const selectedVoice = voices.find((v) => v.id === selectedVoiceId);
 
   /* ---------- generation ---------- */
-  async function handleGenerate() {
+  async function handleGenerate(regenerate = false) {
     if (!selectedVoice) return;
 
     setLoading(true);
     setSummary("");
     setComment("");
 
+    setCanRegenerate(false);
+
     chrome.runtime.sendMessage(
       {
         type: "GENERATE_COMMENT",
         voiceProfile: selectedVoice.profile,
+        regenerate,
       },
       (res) => {
         setLoading(false);
@@ -57,6 +62,8 @@ export default function PopupApp() {
 
         setSummary(res.summary);
         setComment(res.comment);
+
+        setCanRegenerate(true);
       }
     );
   }
@@ -148,7 +155,7 @@ export default function PopupApp() {
 
       {/* Generate */}
       <button
-        onClick={handleGenerate}
+        onClick={() => handleGenerate(false)}
         disabled={loading}
         className={`w-full rounded-xl py-2 text-sm font-medium text-black transition
     bg-[#00eed0]
@@ -187,6 +194,14 @@ export default function PopupApp() {
                 {comment}
               </p>
               <CopyButton text={comment} />
+              {canRegenerate && (
+                <button
+                  onClick={() => handleGenerate(true)}
+                  className="text-xs rounded-md border border-[#1f2937] px-2 py-1 hover:bg-[#020617]"
+                >
+                  Try another
+                </button>
+              )}
             </div>
           </div>
         </>

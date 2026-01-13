@@ -10,6 +10,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 async function handleGenerate(
   msg: {
     voiceProfile?: string;
+    regenerate?: boolean;
   },
   sendResponse: (res: any) => void
 ) {
@@ -45,6 +46,7 @@ async function handleGenerate(
             body: JSON.stringify({
               content: res.text,
               userStyle: msg.voiceProfile,
+              regenerate: msg.regenerate,
             }),
             signal: controller.signal,
           });
