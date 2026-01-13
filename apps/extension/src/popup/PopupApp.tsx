@@ -149,11 +149,6 @@ export default function PopupApp() {
         >
           + New
         </button>
-        {selectedVoice && (
-          <p className="mt-1 text-xs text-[var(--subtle)]">
-            {selectedVoice.profile}
-          </p>
-        )}
       </div>
       <label className="flex items-center gap-2 text-xs">
         <input
@@ -195,17 +190,19 @@ export default function PopupApp() {
       )}
 
       {/* Result */}
-      {!loading && summary && (
+      {!loading && (comment || summary) && (
         <>
           <div className="space-y-4 rounded-xl p-1">
-            <div>
-              <h3 className="text-[10px] uppercase tracking-wide text-[var(--subtle)]">
-                Summary
-              </h3>
-              <p className="mt-2 text-sm border border-[#1f2937] bg-[#020617] p-2 leading-relaxed">
-                {summary}
-              </p>
-            </div>
+            {!draftMode && summary && (
+              <div>
+                <h3 className="text-[10px] uppercase tracking-wide text-[var(--subtle)]">
+                  Summary
+                </h3>
+                <p className="mt-2 text-sm border border-[#1f2937] bg-[#020617] p-2 leading-relaxed">
+                  {summary}
+                </p>
+              </div>
+            )}
 
             <div>
               <h3 className="text-[10px] uppercase tracking-wide text-[var(--subtle)]">

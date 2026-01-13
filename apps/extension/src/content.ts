@@ -1,20 +1,60 @@
-function extractPageText(): string {
+function extractViewportText(): string {
   const viewportHeight = window.innerHeight;
 
   const candidates = Array.from(
     document.querySelectorAll<HTMLElement>("article, main, section, div")
-  ).filter((el) => {
-    const rect = el.getBoundingClientRect();
-    return rect.top >= 0 && rect.bottom <= viewportHeight;
-  });
+  )
+    .map((el) => {
+      const rect = el.getBoundingClientRect();
+      const visibleHeight =
+        Math.min(rect.bottom, viewportHeight) - Math.max(rect.top, 0);
 
-  const best = candidates.sort(
-    (a, b) => b.innerText.length - a.innerText.length
-  )[0];
+      return {
+        el,
+        visibleHeight,
+        textLength: el.innerText?.length ?? 0,
+      };
+    })
+    .filter(
+      (item) =>
+        item.visibleHeight > 120 &&
+        item.textLength > 200
+    )
+    .sort(
+      (a, b) =>
+        b.visibleHeight * b.textLength -
+        a.visibleHeight * a.textLength
+    );
 
-  return (
-    best?.innerText?.slice(0, 15000) ?? document.body.innerText.slice(0, 15000)
-  );
+  return candidates[0]?.el.innerText ?? "";
+}
+
+function extractArticleText(): string {
+  const root =
+    document.querySelector("article") ||
+    document.querySelector("main") ||
+    document.body;
+
+  return root?.innerText ?? "";
+}
+
+function extractPageText(): string {
+  const viewportText = extractViewportText();
+
+  // If viewport text looks meaningful, use it
+  if (viewportText.trim().length > 300) {
+    return viewportText.slice(0, 15000);
+  }
+
+  // Otherwise fallback to article-style extraction
+  const articleText = extractArticleText();
+
+  if (articleText.trim().length > 300) {
+    return articleText.slice(0, 15000);
+  }
+
+  // Absolute last resort — never fail
+  return document.body.innerText.slice(0, 15000);
 }
 
 chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
