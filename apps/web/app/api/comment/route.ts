@@ -2,18 +2,18 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 import { parseRequestBody } from "../../../utils/validate";
-import { summarizeText, generateComment } from "../../../lib/llm";
+import { summarizeText, generateComment, enhanceDraft } from "../../../lib/llm";
 import { safeTruncate } from "@commentto/utils";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
+    const draft = typeof body.draft === "string" ? body.draft : null;
+
     const { content, samples, userStyle } = parseRequestBody(body);
     const regenerate = Boolean(body.regenerate);
 
     const truncatedContent = safeTruncate(content);
-
-    const summary = await summarizeText(truncatedContent);
 
     let voiceProfile: string | undefined;
 
@@ -24,11 +24,23 @@ export async function POST(req: NextRequest) {
         ? userStyle.profile
         : undefined;
 
-    const comment = await generateComment({
-      summary,
-      ...(resolvedVoiceProfile ? { voiceProfile: resolvedVoiceProfile } : {}),
-      regenerate,
-    });
+    let summary = "";
+    let comment = "";
+
+    if (draft) {
+      comment = await enhanceDraft({
+        draft,
+        ...(resolvedVoiceProfile ? { voiceProfile: resolvedVoiceProfile } : {}),
+        regenerate,
+      });
+    } else {
+      summary = await summarizeText(truncatedContent);
+      comment = await generateComment({
+        summary,
+        ...(resolvedVoiceProfile ? { voiceProfile: resolvedVoiceProfile } : {}),
+        regenerate,
+      });
+    }
 
     return NextResponse.json(
       { summary, comment, voiceProfile },

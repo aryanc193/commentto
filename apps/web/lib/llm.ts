@@ -215,3 +215,58 @@ Write the comment now.
 
   return text.trim();
 }
+
+export async function enhanceDraft(params: {
+  draft: string;
+  voiceProfile?: string;
+  regenerate?: boolean;
+}): Promise<string> {
+  if (!client) throw new Error("LLM client not configured");
+
+  const prompt = `
+You are improving a human-written comment.
+
+ORIGINAL COMMENT:
+${params.draft}
+
+WRITING VOICE:
+${params.voiceProfile ?? "Neutral, clear, thoughtful"}
+
+Task:
+- Improve clarity, flow, and tone
+- Preserve the original intent and meaning
+- Do NOT add new ideas
+- Do NOT turn this into a summary
+- Sound like a real human, not polished marketing copy
+
+${
+  params.regenerate
+    ? `
+Write a different improved version with the same intent.
+Vary phrasing and rhythm, but keep meaning intact.
+`
+    : ""
+}
+
+Constraints:
+- Plain text only
+- No emojis
+- No hashtags
+
+Write the improved comment now.
+`;
+
+  const response = await client.chat.completions.create({
+    model: MODEL,
+    messages: [
+      { role: "system", content: "You edit comments, you do not invent them." },
+      { role: "user", content: prompt },
+    ],
+    temperature: 0.5,
+  });
+
+  const text = response.choices[0]?.message?.content;
+  if (!text) throw new Error("Failed to enhance draft");
+
+  return text.trim();
+}

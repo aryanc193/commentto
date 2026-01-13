@@ -11,6 +11,7 @@ async function handleGenerate(
   msg: {
     voiceProfile?: string;
     regenerate?: boolean;
+    draft?: string;
   },
   sendResponse: (res: any) => void
 ) {
@@ -47,6 +48,7 @@ async function handleGenerate(
               content: res.text,
               userStyle: msg.voiceProfile,
               regenerate: msg.regenerate,
+              draft: msg.draft,
             }),
             signal: controller.signal,
           });

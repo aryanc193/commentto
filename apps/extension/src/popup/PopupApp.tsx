@@ -13,6 +13,8 @@ export default function PopupApp() {
   const [summary, setSummary] = useState("");
   const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(false);
+  const [draftMode, setDraftMode] = useState(false);
+  const [draftText, setDraftText] = useState("");
 
   const [showVoiceModal, setShowVoiceModal] = useState(false);
   const [voiceDescription, setVoiceDescription] = useState("");
@@ -51,6 +53,7 @@ export default function PopupApp() {
         type: "GENERATE_COMMENT",
         voiceProfile: selectedVoice.profile,
         regenerate,
+        draft: draftMode ? draftText : undefined,
       },
       (res) => {
         setLoading(false);
@@ -152,6 +155,24 @@ export default function PopupApp() {
           </p>
         )}
       </div>
+      <label className="flex items-center gap-2 text-xs">
+        <input
+          type="checkbox"
+          checked={draftMode}
+          onChange={() => setDraftMode(!draftMode)}
+        />
+        Improve my draft instead
+      </label>
+
+      {draftMode && (
+        <textarea
+          rows={3}
+          value={draftText}
+          onChange={(e) => setDraftText(e.target.value)}
+          placeholder="Paste your rough comment here…"
+          className="w-full rounded-lg border border-[#1f2937] bg-[#020617] px-2 py-1 text-sm"
+        />
+      )}
 
       {/* Generate */}
       <button

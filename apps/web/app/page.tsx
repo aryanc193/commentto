@@ -14,10 +14,18 @@ export default function Home() {
   const [summary, setSummary] = useState("");
   const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(false);
+  const [draftMode, setDraftMode] = useState(false);
+  const [draftText, setDraftText] = useState("");
   const [showVoiceModal, setShowVoiceModal] = useState(false);
   const [voiceDescription, setVoiceDescription] = useState("");
 
   const [canRegenerate, setCanRegenerate] = useState(false);
+  
+  useEffect(() => {
+    if (draftMode) {
+      setSummary("");
+    }
+  }, [draftMode]);
 
   useEffect(() => {
     setVoices(PRESET_VOICES);
@@ -27,7 +35,8 @@ export default function Home() {
   const selectedVoice = voices.find((v) => v.id === selectedVoiceId);
 
   async function handleGenerate(regenerate = false) {
-    if (!content.trim()) return;
+    if (!draftMode && !content.trim()) return;
+    if (draftMode && !draftText.trim()) return;
 
     setLoading(true);
     setSummary("");
@@ -43,6 +52,7 @@ export default function Home() {
           content,
           userStyle: selectedVoice?.profile,
           regenerate,
+          draft: draftMode ? draftText : undefined,
         }),
       });
 
@@ -133,6 +143,25 @@ export default function Home() {
           </button>
         </div>
 
+        <label className="flex items-center gap-2 text-xs">
+          <input
+            type="checkbox"
+            checked={draftMode}
+            onChange={() => setDraftMode(!draftMode)}
+          />
+          Improve my draft instead
+        </label>
+
+        {draftMode && (
+          <textarea
+            rows={3}
+            value={draftText}
+            onChange={(e) => setDraftText(e.target.value)}
+            placeholder="Paste your rough comment here…"
+            className="w-full rounded-lg border border-[#1f2937] bg-[#020617] px-2 py-1 text-sm"
+          />
+        )}
+
         {/* Generate */}
         <button
           onClick={() => handleGenerate()}
@@ -171,14 +200,16 @@ export default function Home() {
           </>
         )}
 
-        {!loading && summary && (
+        {!loading && (comment || summary) && (
           <>
-            <section className="mb-6">
-              <h3 className="text-xs uppercase tracking-wide text-[var(--subtle)]">
-                Summary
-              </h3>
-              <p className="mt-2">{summary}</p>
-            </section>
+            {!draftMode && summary && (
+              <section className="mb-6">
+                <h3 className="text-xs uppercase tracking-wide text-[var(--subtle)]">
+                  Summary
+                </h3>
+                <p className="mt-2">{summary}</p>
+              </section>
+            )}
 
             <section>
               <h3 className="text-xs uppercase tracking-wide text-[var(--subtle)]">
