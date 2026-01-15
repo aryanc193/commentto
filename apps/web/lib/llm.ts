@@ -109,7 +109,7 @@ Write now.
       },
       { role: "user", content: prompt },
     ],
-    temperature: 0.4,
+    temperature: 0.5,
   });
 
   const text = response.choices[0]?.message?.content;
@@ -204,7 +204,7 @@ Write the comment now.
       },
       { role: "user", content: prompt },
     ],
-    temperature: 0.6,
+    temperature: 0.8,
   });
 
   const text = response.choices[0]?.message?.content;
@@ -262,7 +262,7 @@ Write the improved comment now.
       { role: "system", content: "You edit comments, you do not invent them." },
       { role: "user", content: prompt },
     ],
-    temperature: 0.5,
+    temperature: 1,
   });
 
   const text = response.choices[0]?.message?.content;
