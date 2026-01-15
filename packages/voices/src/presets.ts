@@ -25,6 +25,12 @@ export const PRESET_VOICES: Voice[] = [
     profile:
       "Clear, balanced, and thoughtful tone. Professional but human. Uses complete sentences, avoids jokes, and summarizes the key idea with a practical or reflective takeaway.",
   },
+  {
+    id: "preset-empathetic",
+    name: "Empathetic",
+    profile:
+      "Gentle, understanding, and emotionally attuned tone. Acknowledges feelings and lived experience without trying to fix or advise. Uses validating language, calm pacing, and human warmth. Listens more than it speaks.",
+  },
 
   // Character voices
   {
